@@ -2,57 +2,62 @@ using UnityEngine;
 
 public class ProceduralPOV : MonoBehaviour
 {
-    [Header("References: ")]
-    [SerializeField] private Transform leftHandBone;
-    [SerializeField] private Transform rightHandBone;
-    private Rigidbody playerRb;
+    [Header("IK Targets")]
+    public Transform leftHandTarget;
+    public Transform rightHandTarget;
 
-    [Header("Jump reaction: ")]
-    [SerializeField] private float jumpLiftAmount = 0.1f;
-    [SerializeField] private float damping = 6.0f;
+    private Vector3 leftBasePos;
+    private Vector3 rightBasePos;
 
-    [Header("Sway settings: ")]
-    [SerializeField] private float swayAmount = 0.05f;
-    [SerializeField] private float swaySpeed = 4.0f;
+    private Vector3 leftSmoothedOffset;
+    private Vector3 rightSmoothedOffset;
 
-    [Header("Bob settings: ")]
-    [SerializeField] private float bobAmount = 0.03f;
-    [SerializeField] private float bobFreq = 8.0f;
+    private Vector3 leftVel;
+    private Vector3 rightVel;
 
-    private Vector3 leftHandPos;
-    private Vector3 rightHandPos;
+    private Rigidbody rb;
 
-    private void Start()
+    [Header("Motion Influence")]
+    public float swayStrength = 0.04f;
+    public float bobStrength = 0.025f;
+    public float inertiaStrength = 0.06f;
+    public float jumpLift = 0.12f;
+
+    [Header("Spring Smoothing")]
+    public float smoothTime = 0.12f;
+
+    private float bobTimer;
+
+    void Start()
     {
-        leftHandPos = leftHandBone.localPosition;
-        rightHandPos = rightHandBone.localPosition;
+        leftBasePos = leftHandTarget.localPosition;
+        rightBasePos = rightHandTarget.localPosition;
 
-        playerRb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
     }
 
-    private void LateUpdate()
+    void LateUpdate()
     {
-        Vector3 vel = playerRb.linearVelocity;
-        float speed = new Vector2(vel.x, vel.y).magnitude;
+        Vector3 vel = rb.linearVelocity;
+        float speed = new Vector2(vel.x, vel.z).magnitude;
 
-        float time = Time.time;
+        bobTimer += Time.deltaTime * speed * 10f;
+        Vector3 inertia = vel * inertiaStrength;
 
-        // jump
-        float verticalVel = vel.y;
-        float jumpOffset = Mathf.Lerp(0f, jumpLiftAmount, Mathf.Clamp01(verticalVel / 10.0f));
-        jumpOffset = Mathf.Lerp(jumpOffset, 0.0f, Time.deltaTime * damping);
+        float jump = Mathf.Clamp(vel.y, -2f, 2f) * jumpLift;
+        float bob = Mathf.Sin(bobTimer) * bobStrength * speed;
+        float sway = Mathf.Sin(bobTimer * 0.5f) * swayStrength * speed;
 
-        // movement
-        float sway = Mathf.Sin(time * swaySpeed) * speed * swayAmount;
+        Vector3 leftTarget =
+            new Vector3(sway, jump + bob, 0) + inertia;
 
-        // bob
-        float bob = Mathf.Sin(time * bobFreq) * speed * bobAmount;
+        Vector3 rightTarget =
+            new Vector3(-sway, jump - bob, 0) + inertia;
 
-        // apply offsets
-        Vector3 leftOffset = new Vector3(sway, jumpOffset + bob, 0);
-        Vector3 rightOffset = new Vector3(-sway, jumpOffset - bob, 0);
+        leftSmoothedOffset = Vector3.SmoothDamp(leftSmoothedOffset, leftTarget, ref leftVel, smoothTime);
+        rightSmoothedOffset = Vector3.SmoothDamp(rightSmoothedOffset, rightTarget, ref rightVel, smoothTime);
 
-        leftHandBone.localPosition = leftHandPos + leftOffset;
-        rightHandBone.localPosition = rightHandPos + rightOffset;
+        leftHandTarget.localPosition = leftBasePos + leftSmoothedOffset;
+        rightHandTarget.localPosition = rightBasePos + rightSmoothedOffset;
     }
 }
