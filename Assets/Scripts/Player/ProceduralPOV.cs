@@ -2,12 +2,10 @@ using UnityEngine;
 
 public class ProceduralPOV : MonoBehaviour
 {
-    [Header("IK Targets")]
+    [Header("IK Target")]
     public Transform leftHandTarget;
-    public Transform rightHandTarget;
 
     private Vector3 leftBasePos;
-    private Vector3 rightBasePos;
 
     private Vector3 leftSmoothedOffset;
     private Vector3 rightSmoothedOffset;
@@ -31,7 +29,6 @@ public class ProceduralPOV : MonoBehaviour
     void Start()
     {
         leftBasePos = leftHandTarget.localPosition;
-        rightBasePos = rightHandTarget.localPosition;
 
         rb = GetComponent<Rigidbody>();
     }
@@ -42,7 +39,7 @@ public class ProceduralPOV : MonoBehaviour
         float speed = new Vector2(vel.x, vel.z).magnitude;
 
         bobTimer += Time.deltaTime * speed * 10f;
-        Vector3 inertia = vel * inertiaStrength;
+        Vector3 inertia = -vel * inertiaStrength;
 
         float jump = Mathf.Clamp(vel.y, -2f, 2f) * jumpLift;
         float bob = Mathf.Sin(bobTimer) * bobStrength * speed;
@@ -51,13 +48,8 @@ public class ProceduralPOV : MonoBehaviour
         Vector3 leftTarget =
             new Vector3(sway, jump + bob, 0) + inertia;
 
-        Vector3 rightTarget =
-            new Vector3(-sway, jump - bob, 0) + inertia;
-
         leftSmoothedOffset = Vector3.SmoothDamp(leftSmoothedOffset, leftTarget, ref leftVel, smoothTime);
-        rightSmoothedOffset = Vector3.SmoothDamp(rightSmoothedOffset, rightTarget, ref rightVel, smoothTime);
 
-        leftHandTarget.localPosition = leftBasePos + leftSmoothedOffset;
-        rightHandTarget.localPosition = rightBasePos + rightSmoothedOffset;
+        leftHandTarget.localPosition = leftBasePos - leftSmoothedOffset;
     }
 }

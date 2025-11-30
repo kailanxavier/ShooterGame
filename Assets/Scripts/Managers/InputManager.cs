@@ -8,6 +8,7 @@ public class InputManager : MonoBehaviour
     private Vector2 moveInput;
     private Vector2 lookInput;
     private bool jumpPerformed;
+    private bool attackPerformed;
 
     private void Awake()
     {
@@ -34,6 +35,9 @@ public class InputManager : MonoBehaviour
 
         inputSystem.Player.Jump.performed += ctx => jumpPerformed = true;
         inputSystem.Player.Jump.canceled += ctx => jumpPerformed = false;
+
+        inputSystem.Player.Attack.performed += ctx => attackPerformed = true;
+        inputSystem.Player.Attack.canceled += ctx => attackPerformed = false;
     }
 
     private void OnDisable()
@@ -50,4 +54,5 @@ public class InputManager : MonoBehaviour
     public Vector2 Move => moveInput;
     public Vector2 Look => lookInput;
     public bool Jump => jumpPerformed;
+    public bool Attack => attackPerformed;
 }

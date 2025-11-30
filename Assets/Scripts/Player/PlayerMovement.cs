@@ -50,6 +50,11 @@ public class PlayerMovement : MonoBehaviour
             Jump();
 
         playerRb.linearDamping = grounded ? groundDrag : 0f;
+
+
+        // rotate player to face cam dir
+        Vector3 e = orientation.eulerAngles;
+        transform.rotation = Quaternion.Euler(0.0f, e.y, 0.0f);
     }
 
     private void FixedUpdate()
@@ -58,9 +63,6 @@ public class PlayerMovement : MonoBehaviour
         CounterMovement();
         ClampSpeed();
 
-        // rotate player to face cam dir
-        Vector3 e = orientation.eulerAngles;
-        transform.rotation = Quaternion.Euler(0.0f, e.y, 0.0f);
     }
 
     private void BaseMove()
