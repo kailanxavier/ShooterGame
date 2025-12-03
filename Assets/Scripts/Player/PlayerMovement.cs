@@ -51,7 +51,6 @@ public class PlayerMovement : MonoBehaviour
 
         playerRb.linearDamping = grounded ? groundDrag : 0f;
 
-
         // rotate player to face cam dir
         Vector3 e = orientation.eulerAngles;
         transform.rotation = Quaternion.Euler(0.0f, e.y, 0.0f);
@@ -62,7 +61,6 @@ public class PlayerMovement : MonoBehaviour
         BaseMove();
         CounterMovement();
         ClampSpeed();
-
     }
 
     private void BaseMove()
@@ -75,7 +73,6 @@ public class PlayerMovement : MonoBehaviour
         if (moveDir.sqrMagnitude > 1.0f) moveDir.Normalize();
 
         float multiplier = grounded ? 1f : airControl;
-
         playerRb.AddForce(acceleration * multiplier * moveDir, ForceMode.Acceleration);
     }
 
