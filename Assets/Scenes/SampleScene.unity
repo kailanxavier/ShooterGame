@@ -940,10 +940,12 @@ MonoBehaviour:
     m_Bits: 2048
   attackCooldown: 0.8
   attackRange: 1
+  attackRadius: 1.2
+  attackAngle: 75
   enemyTag: Enemy
   damage: 35
   canAttack: 1
-  camRef: {fileID: 330585546}
+  attackOrigin: {fileID: 1334664838}
 --- !u!114 &1017219917
 MonoBehaviour:
   m_ObjectHideFlags: 0

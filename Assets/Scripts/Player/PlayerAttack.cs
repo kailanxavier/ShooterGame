@@ -1,14 +1,19 @@
+using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
     [SerializeField] private LayerMask attackableMask;
     [SerializeField] private float attackCooldown = 3f;
-    [SerializeField] private float attackRange = 1f;
+    [SerializeField] private float attackRange = 2f;
+    [SerializeField] private float attackRadius = 1.2f;
+    [SerializeField] private float attackAngle = 75f;
     [SerializeField] private string enemyTag = "Enemy";
     [SerializeField] private int damage = 35;
     [SerializeField] private bool canAttack = true;
-    [SerializeField] private Transform camRef;
+
+    [SerializeField] private Transform attackOrigin;
 
     private PlayerAnimator playerAnimator;
 
@@ -30,24 +35,34 @@ public class PlayerAttack : MonoBehaviour
 
     private void Attack()
     {
-        canAttack = false;
+        Vector3 origin = attackOrigin.position;
+        Vector3 forward = attackOrigin.forward;
 
-        Camera cam = Camera.main;
-        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Collider[] hits = Physics.OverlapSphere(origin, attackRadius, attackableMask);
 
-        if (Physics.Raycast(ray, out RaycastHit hitInfo, attackRange, attackableMask))
+        List<Collider> validHits = new();
+
+        foreach (var c in hits)
         {
-            if (hitInfo.collider.CompareTag(enemyTag))
+            Vector3 dir = (c.transform.position - origin).normalized;
+
+            if (Vector3.Angle(forward, dir) <= attackAngle)
             {
-                EnemyBase enemy = hitInfo.collider.gameObject.GetComponent<EnemyBase>();
-                if (enemy)
+                if (Physics.Raycast(origin, dir, out RaycastHit hitInfo, attackRange, attackableMask))
                 {
-                    enemy.TakeDamage(damage);
+                    if (hitInfo.collider == c)
+                    {
+                        validHits.Add(c);
+                    }
                 }
             }
-            // maybe other destructibles will go here soon
         }
-        // else we didnt hit anything
+
+        foreach (var hit in validHits)
+        {
+            Debug.Log("Hit: " + hit.name);
+            hit.GetComponent<EnemyBase>()?.TakeDamage(damage);
+        }
     }
 
     private void ResetAttack()
@@ -57,9 +72,9 @@ public class PlayerAttack : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Camera cam = Camera.main;
-        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        if (!attackOrigin) return;
 
-        Debug.DrawLine(ray.origin, ray.direction * attackRange, Color.red);
+        Gizmos.color = new Color(1, 0, 0, 0.4f);
+        Gizmos.DrawWireSphere(attackOrigin.position, attackRadius);
     }
 }
