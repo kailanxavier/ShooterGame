@@ -9,7 +9,6 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackRadius = 1.2f;
     [SerializeField] private float attackAngle = 75f;
-    [SerializeField] private string enemyTag = "Enemy";
     [SerializeField] private int damage = 35;
     [SerializeField] private bool canAttack = true;
 

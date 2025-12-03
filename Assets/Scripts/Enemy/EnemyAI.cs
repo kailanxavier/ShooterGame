@@ -31,6 +31,14 @@ public class EnemyAI : MonoBehaviour
     private Pathfinder pathfinder;
     private List<Vector3> currentPath;
     private int currentWaypoint;
+    private float repathDelay = 0.5f;
+    private float repathTimer = 0f;
+
+    private void Start()
+    {
+        repathDelay = 0.4f;
+        repathTimer = Random.Range(0f, 1f);
+    }
 
     private void Awake()
     {
@@ -56,34 +64,34 @@ public class EnemyAI : MonoBehaviour
                 canSeePlayer = true;
                 lostSightTimer = visionBuffer;
             }
-            else
-            {
-                // do you remember
-            }
         }
 
         if (lostSightTimer > 0f)
             lostSightTimer -= Time.deltaTime;
         else
             canSeePlayer = false;
-    }
 
-    private void FixedUpdate()
-    {
         if (player == null) return;
 
         float dist = Vector3.Distance(transform.position, player.position);
+        repathTimer -= Time.deltaTime;
 
         if (dist <= chaseRange && canSeePlayer)
         {
-            if (currentPath == null || currentPath.Count == 0 || Vector3.Distance(player.position, currentPath[^1]) > 1f)
+            if (Time.time >= repathTimer)
             {
-                currentPath = pathfinder.FindPath(transform.position, player.position);
-                currentWaypoint = 0;
+                repathTimer = Time.time + repathDelay;
+                QueueManager.RequestPath(transform.position, player.position, OnPathFound);
             }
 
             FollowPath();
         }
+    }
+
+    private void OnPathFound(List<Vector3> path)
+    {
+        currentPath = path;
+        currentWaypoint = 0;
     }
 
     private void FollowPath()
@@ -97,8 +105,8 @@ public class EnemyAI : MonoBehaviour
 
         // move and rotate enemy towards player
         Quaternion targetRot = Quaternion.LookRotation(dir);
-        rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 10f * Time.fixedDeltaTime));
-        rb.MovePosition(rb.position + moveSpeed * Time.fixedDeltaTime * dir);
+        rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 10f * Time.deltaTime));
+        rb.MovePosition(rb.position + moveSpeed * Time.deltaTime * dir);
 
         float near = 0.3f;
         if (Vector3.Distance(transform.position, moveTarget) < near)
