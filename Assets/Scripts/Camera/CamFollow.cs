@@ -4,7 +4,7 @@ public class CamFollow : MonoBehaviour
 {
     [SerializeField] private Transform desiredPos;
 
-    private void Update()
+    private void LateUpdate()
     {
         transform.SetPositionAndRotation(desiredPos.position, desiredPos.rotation);
     }

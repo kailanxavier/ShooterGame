@@ -24,6 +24,8 @@ public class GridManager : MonoBehaviour
 
         // create grid
         CreateGrid();
+
+        CacheGridData();
     }
 
     private void CreateGrid()
@@ -95,24 +97,32 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (!drawGrid) return;
+    private List<Vector3> gizmoPositions;
+    private List<bool> gizmoWalkable;
 
-        Gizmos.color = Color.white;
-        Gizmos.DrawWireCube(transform.position, gridWorldSize);
+    private void CacheGridData()
+    {
+        gizmoPositions = new List<Vector3>();
+        gizmoWalkable = new List<bool>();
 
         foreach (var node in grid)
         {
-            Gizmos.color = node.walkable ? Color.white : Color.red;
+            gizmoPositions.Add(node.worldPos);
+            gizmoWalkable.Add(node.walkable);
+        }
+    }
 
-            Gizmos.DrawCube(
-                node.worldPos,
-                new Vector3(nodeRadius * 2, 0.05f, nodeRadius * 2)
-            );
+    private void OnDrawGizmos()
+    {
+        if (!drawGrid || gizmoPositions == null) return;
+
+        for (int i = 0; i < gizmoPositions.Count; i++)
+        {
+            Gizmos.color = gizmoWalkable[i] ? Color.white : Color.red;
+            Gizmos.DrawCube(gizmoPositions[i], new Vector3(nodeRadius * 2, 0.05f, nodeRadius * 2));
         }
 
-        if (grid == null) return;
+        Gizmos.DrawWireCube(Vector3.zero, gridWorldSize);
     }
 
 }
