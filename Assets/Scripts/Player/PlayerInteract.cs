@@ -19,7 +19,6 @@ public class PlayerInteract : MonoBehaviour
             if (InputManager.Instance.Interact)
             {
                 Interact(hitInfo);
-                Debug.Log("Interacted");
             }
         }
     }

@@ -27,8 +27,7 @@ public class Chest : InteractBase
             return;
         }
 
+        // pickup interaction goes here
         secondInteracted = true;
-        float random = Random.Range(0, 10f);
-        Debug.Log(random.ToString());   
     }
 }

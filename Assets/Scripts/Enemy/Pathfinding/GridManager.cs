@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -18,6 +16,10 @@ public class GridManager : MonoBehaviour
 
     private List<Vector3> gizmoPositions;
     private List<bool> gizmoWalkable;
+
+    // properties
+    public Vector3 GridWorldSize => gridWorldSize;
+    public float NodeRadius => nodeRadius;
 
     private void Awake()
     {
@@ -64,6 +66,85 @@ public class GridManager : MonoBehaviour
         int y = Mathf.Clamp(Mathf.FloorToInt(gridSizeY * percentY), 0, gridSizeY - 1);
 
         return grid[x, y];
+    }
+
+    public List<PathNode> GetNodesAroundPlayer(PathNode centerNode, int radius)
+    {
+        var nodes = new List<PathNode>();
+
+        for (int x = -radius; x <= radius; x++)
+        {
+            for(int y = -radius; y <= radius; y++)
+            {
+                int checkX = centerNode.gridX + x;
+                int checkY = centerNode.gridY + y;
+
+                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                {
+                    nodes.Add(grid[checkX, checkY]);
+                }
+            }
+        }
+        return nodes;
+    }
+
+    public PathNode GetNearestWalkableNode(PathNode center, int r)
+    {
+        if (!center.walkable) return null;
+
+        PathNode best = null;
+        float bestDist = float.MaxValue;
+
+        for (int x = -r; x <= r; x++)
+        {
+            for (int y = -r; y <= r; y++)
+            {
+                int checkX = center.gridX + x;
+                int checkY = center.gridY + y;
+
+                if (checkX < 0 || checkX >= gridSizeX || checkY < 0 || checkY >= gridSizeY) continue;
+
+                PathNode n = grid[checkX, checkY];
+
+                if (!n.walkable) continue;
+                if (IsSurrounded(n)) return null;
+
+                float d = (n.worldPos - center.worldPos).sqrMagnitude;
+                if (d < bestDist)
+                {
+                    best = n;
+                    bestDist = d;
+                }
+            }
+        }
+
+        return best;
+    }
+
+    private bool IsSurrounded(PathNode node)
+    {
+        int x = node.gridX;
+        int y = node.gridY;
+
+        int[,] directionMatrix = new int[,]
+        {
+            { -1, 1 }, { 0, -1 }, { 1, 1 },
+            { -1, 0 },            { 1, 0 },
+            { -1, 1 }, { 0, 1 },  { 1, 1 }
+        };
+
+        for (int i = 0; i < directionMatrix.GetLength(0); i++)
+        {
+            int nx = x + directionMatrix[i, 0];
+            int ny = y + directionMatrix[i, 1];
+
+            // check bound
+            if (nx < 0 || ny < 0 || nx >= gridSizeX || ny >= gridSizeY) continue;
+
+            if (grid[nx, ny].walkable) return false;
+        }
+
+        return true;
     }
 
     public List<PathNode> GetPathNodesCloseBy(PathNode node)
