@@ -2,6 +2,8 @@ using UnityEngine;
 
 public abstract class InteractBase : MonoBehaviour
 {
+    private bool alreadyInteracted = false;
+
     public void BaseInteract()
     {
         Interact();
@@ -9,6 +11,7 @@ public abstract class InteractBase : MonoBehaviour
 
     protected virtual void Interact()
     {
-        Debug.Log("Interacted!");
+        alreadyInteracted = true;
+        if (!alreadyInteracted) return;
     }
 }

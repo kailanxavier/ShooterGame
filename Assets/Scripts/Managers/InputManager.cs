@@ -9,7 +9,11 @@ public class InputManager : MonoBehaviour
     private Vector2 lookInput;
     private bool jumpPerformed;
     private bool attackPerformed;
+
+
     private bool interactPerformed;
+    private bool interactedThisPress;
+
 
     private void Awake()
     {
@@ -22,6 +26,12 @@ public class InputManager : MonoBehaviour
         Instance = this;
 
         inputSystem ??= new InputSystem();
+    }
+
+    private void Update()
+    {
+        if (!interactPerformed)
+            interactedThisPress = false;
     }
 
     private void OnEnable()
@@ -68,5 +78,16 @@ public class InputManager : MonoBehaviour
     public Vector2 Look => lookInput;
     public bool Jump => jumpPerformed;
     public bool Attack => attackPerformed;
-    public bool Interact => interactPerformed;
+    public bool Interact
+    {
+        get
+        {
+            if (interactPerformed && !interactedThisPress)
+            {
+                interactedThisPress = true;
+                return true;
+            }
+            return false;
+        }
+    }
 }

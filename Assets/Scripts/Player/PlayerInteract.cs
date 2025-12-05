@@ -15,19 +15,18 @@ public class PlayerInteract : MonoBehaviour
 
         if (canInteract)
         {
-            Debug.Log("Can interact with: " +  hitInfo.collider.gameObject.name);
-
             // interact
             if (InputManager.Instance.Interact)
             {
-                Debug.Log("Interact pressed");
                 Interact(hitInfo);
+                Debug.Log("Interacted");
             }
         }
     }
 
     private void Interact(RaycastHit hitInfo)
     {
+        canInteract = false;
         InteractBase interactable = hitInfo.collider.gameObject.GetComponent<InteractBase>();
         if (interactable)
             interactable.BaseInteract();

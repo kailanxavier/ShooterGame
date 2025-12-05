@@ -35,7 +35,7 @@ public class PlayerLook : MonoBehaviour
         yaw -= mouseY;
         yaw = Mathf.Clamp(yaw, -maxLookAngle, maxLookAngle);
 
-        camRef.transform.rotation = Quaternion.Euler(yaw, pitch, 0);
-        orientation.rotation = Quaternion.Euler(0, pitch, 0);
+        camRef.localRotation = Quaternion.Euler(yaw, 0f, 0f);
+        orientation.rotation = Quaternion.Euler(0f, pitch, 0f);
     }
 }
