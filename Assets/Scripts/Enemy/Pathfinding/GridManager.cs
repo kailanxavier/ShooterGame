@@ -16,6 +16,9 @@ public class GridManager : MonoBehaviour
     private float nodeDiameter;
     private int gridSizeX, gridSizeY;
 
+    private List<Vector3> gizmoPositions;
+    private List<bool> gizmoWalkable;
+
     private void Awake()
     {
         nodeDiameter = nodeRadius * 2;
@@ -96,9 +99,6 @@ public class GridManager : MonoBehaviour
             node.parent = null;
         }
     }
-
-    private List<Vector3> gizmoPositions;
-    private List<bool> gizmoWalkable;
 
     private void CacheGridData()
     {

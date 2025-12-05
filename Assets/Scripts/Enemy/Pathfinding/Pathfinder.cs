@@ -1,17 +1,26 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Pathfinder : MonoBehaviour
 {
     private GridManager grid;
+    private Transform player;
 
     private void Awake()
     {
         grid = FindFirstObjectByType<GridManager>();
+        player = FindFirstObjectByType<PlayerMovement>().transform;
     }
 
     public List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos)
     {
+        // before calculating the path
+        // we will need to check if the
+        // player is on a walkable tile
+        // and only then calculate the
+        // path to avoid stuttering
+
         grid.ResetPathNodes();
 
         var path = new List<Vector3>();
@@ -24,6 +33,7 @@ public class Pathfinder : MonoBehaviour
         while (openSet.Count > 0)
         {
             PathNode current = openSet[0];
+
             for (int i = 1; i < openSet.Count; i++)
             {
                 if (openSet[i].fCost < current.fCost || (openSet[i].fCost == current.fCost && openSet[i].hCost < current.hCost))
@@ -44,6 +54,7 @@ public class Pathfinder : MonoBehaviour
             foreach (PathNode closeBy in grid.GetPathNodesCloseBy(current))
             {
                 if (!closeBy.walkable || closedSet.Contains(closeBy)) continue;
+
 
                 int newCost = current.gCost + GetDistance(current, closeBy);
                 if (newCost < closeBy.gCost || !openSet.Contains(closeBy))

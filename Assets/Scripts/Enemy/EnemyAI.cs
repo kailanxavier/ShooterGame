@@ -83,7 +83,6 @@ public class EnemyAI : MonoBehaviour
                 repathTimer = Time.time + repathDelay;
                 QueueManager.RequestPath(transform.position, player.position, OnPathFound);
             }
-
             FollowPath();
         }
     }
