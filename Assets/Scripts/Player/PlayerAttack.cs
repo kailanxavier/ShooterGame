@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -25,15 +26,17 @@ public class PlayerAttack : MonoBehaviour
     {
         if (InputManager.Instance.Attack && canAttack)
         {
-            Attack();
+            StartCoroutine(Attack(0.2f));
             playerAnimator.AnimateAttack();
 
             Invoke(nameof(ResetAttack), attackCooldown);
         }
     }
 
-    private void Attack()
+    private IEnumerator Attack(float delay)
     {
+        yield return new WaitForSeconds(delay);
+
         Vector3 origin = attackOrigin.position;
         Vector3 forward = attackOrigin.forward;
 
