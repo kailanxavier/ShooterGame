@@ -20,7 +20,6 @@ public class EnemyBase : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
-        Debug.Log($"Current enemy health: {health}");
 
         if (health <= 0)
             Die();

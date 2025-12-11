@@ -9,7 +9,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private float attackCooldown = 3f;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackRadius = 1.2f;
-    [SerializeField] private float attackAngle = 75f;
+    [SerializeField] private float attackAngle = 75.0f;
     [SerializeField] private int damage = 35;
     [SerializeField] private bool canAttack = true;
 
@@ -40,6 +40,9 @@ public class PlayerAttack : MonoBehaviour
         Vector3 origin = attackOrigin.position;
         Vector3 forward = attackOrigin.forward;
 
+        // keep track of who was already hit this swing
+        HashSet<Collider> hitAlready = new();
+
         Collider[] hits = Physics.OverlapSphere(origin, attackRadius, attackableMask);
 
         List<Collider> validHits = new();
@@ -62,6 +65,11 @@ public class PlayerAttack : MonoBehaviour
 
         foreach (var hit in validHits)
         {
+            if (hitAlready.Contains(hit))
+                continue;
+
+            hitAlready.Add(hit);
+
             Debug.Log("Hit: " + hit.name);
             hit.GetComponent<EnemyBase>()?.TakeDamage(damage);
         }
@@ -70,13 +78,5 @@ public class PlayerAttack : MonoBehaviour
     private void ResetAttack()
     {
         canAttack = true;
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (!attackOrigin) return;
-
-        Gizmos.color = new Color(1, 0, 0, 0.4f);
-        Gizmos.DrawWireSphere(attackOrigin.position, attackRadius);
     }
 }
