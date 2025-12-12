@@ -154,4 +154,7 @@ public class PlayerMovement : MonoBehaviour
     {
         readyToJump = true;
     }
+
+    public float Speed => playerRb.linearVelocity.magnitude;
+    public bool IsGrounded => grounded;
 }

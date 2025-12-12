@@ -4,6 +4,8 @@ public class EnemyBase : MonoBehaviour
 {
     private int health;
     [SerializeField] private EnemyData data;
+    [SerializeField] private AudioClip death;
+    [SerializeField, Range(0.0f, 1.0f)] private float deathVolume;
 
     private void Awake()
     {
@@ -27,6 +29,7 @@ public class EnemyBase : MonoBehaviour
 
     private void Die()
     {
+        SoundManager.Instance.PlaySound(death, transform.position, deathVolume);
         Destroy(gameObject);
         // ui stuff here
     }
