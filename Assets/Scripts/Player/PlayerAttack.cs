@@ -18,6 +18,9 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private int boxCount = 5;
     [SerializeField] private Vector3 boxSize = new(0.4f, 0.4f, 0.4f);
 
+    [Header("Visuals: ")]
+    [SerializeField] private GameObject bloodPrefab;
+
     [SerializeField] private Transform attackOrigin;
 
     [Header("Audio clips: ")]
@@ -82,7 +85,7 @@ public class PlayerAttack : MonoBehaviour
 
                 hitAlready.Add(hit);
 
-                //Debug.Log("Hit " + hit.name);
+                Instantiate(bloodPrefab, spawnPos, Quaternion.identity);
                 hit.GetComponent<EnemyBase>()?.TakeDamage(damage);
                 SoundManager.Instance.PlaySound(hitClip, hit.transform.position, hitVolume);
             }
