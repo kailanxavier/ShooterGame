@@ -1,19 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEditor.UIElements;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+    [Header("Attack settings: ")]
     [SerializeField] private LayerMask attackableMask;
     [SerializeField] private float attackCooldown = 3f;
-    [SerializeField] private float attackRange = 2f;
-    [SerializeField] private float attackRadius = 1.2f;
-    [SerializeField] private float attackAngle = 75.0f;
     [SerializeField] private int damage = 35;
     [SerializeField] private bool canAttack = true;
 
+    [Header("Hit detection: ")]
+    [SerializeField] private float attackRange = 2f;
+    [SerializeField] private float spreadAngle = 45.0f;
+    [SerializeField] private int boxCount = 5;
+    [SerializeField] private Vector3 boxSize = new(0.4f, 0.4f, 0.4f);
+
     [SerializeField] private Transform attackOrigin;
+
+    [Header("Audio clips: ")]
+    [SerializeField] private AudioClip swingClip;
+    [SerializeField] private AudioClip hitClip;
+    [SerializeField, Range(0.0f, 1.0f)] private float swingVolume = 1.0f;
+    [SerializeField, Range(0.0f, 1.0f)] private float hitVolume = 1.0f;
 
     private PlayerAnimator playerAnimator;
 
@@ -26,6 +37,8 @@ public class PlayerAttack : MonoBehaviour
     {
         if (InputManager.Instance.Attack && canAttack)
         {
+            canAttack = false;
+
             StartCoroutine(Attack(0.2f));
             playerAnimator.AnimateAttack();
 
@@ -37,41 +50,44 @@ public class PlayerAttack : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        Vector3 origin = attackOrigin.position;
-        Vector3 forward = attackOrigin.forward;
+        SoundManager.Instance.PlaySound(swingClip, transform.position, swingVolume);
 
-        // keep track of who was already hit this swing
         HashSet<Collider> hitAlready = new();
 
-        Collider[] hits = Physics.OverlapSphere(origin, attackRadius, attackableMask);
+        float halfAngle = spreadAngle / 2f;
+        Transform cam = Camera.main.transform;
 
-        List<Collider> validHits = new();
-
-        foreach (var c in hits)
+        for (int i = 0; i < boxCount; i++)
         {
-            Vector3 dir = (c.transform.position - origin).normalized;
+            float t = (boxCount == 1) ? 0.5f : (float)i / (boxCount - 1);
 
-            if (Vector3.Angle(forward, dir) <= attackAngle)
+            float angle = Mathf.Lerp(halfAngle, -halfAngle, t);
+
+            Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up);
+            Vector3 dir = rot * cam.forward;
+
+            Vector3 spawnPos = attackOrigin.position + dir.normalized * attackRange;
+
+            Debug.DrawRay(attackOrigin.position, dir * attackRange, Color.red, 0.3f);
+
+            Collider[] hits = Physics.OverlapBox(
+                spawnPos, boxSize * 0.5f,
+                Quaternion.LookRotation(dir),
+                attackableMask
+            );
+
+            foreach (Collider hit in hits)
             {
-                if (Physics.Raycast(origin, dir, out RaycastHit hitInfo, attackRange, attackableMask))
-                {
-                    if (hitInfo.collider == c)
-                    {
-                        validHits.Add(c);
-                    }
-                }
+                if (hitAlready.Contains(hit)) continue;
+
+                hitAlready.Add(hit);
+
+                //Debug.Log("Hit " + hit.name);
+                hit.GetComponent<EnemyBase>()?.TakeDamage(damage);
+                SoundManager.Instance.PlaySound(hitClip, hit.transform.position, hitVolume);
             }
-        }
 
-        foreach (var hit in validHits)
-        {
-            if (hitAlready.Contains(hit))
-                continue;
-
-            hitAlready.Add(hit);
-
-            Debug.Log("Hit: " + hit.name);
-            hit.GetComponent<EnemyBase>()?.TakeDamage(damage);
+            yield return null;
         }
     }
 
@@ -79,4 +95,28 @@ public class PlayerAttack : MonoBehaviour
     {
         canAttack = true;
     }
+
+    //private void OnDrawGizmosSelected()
+    //{
+    //    if (attackOrigin == null) return;
+
+    //    Gizmos.color = Color.yellow;
+
+    //    float halfAngle = spreadAngle / 2f;
+    //    Transform cam = Camera.main != null ? Camera.main.transform : this.transform;
+
+    //    for (int i = 0; i < boxCount; i++)
+    //    {
+    //        float t = (boxCount == 1) ? 0.5f : (float)i / (boxCount - 1);
+    //        float angle = Mathf.Lerp(halfAngle, -halfAngle, t);
+
+    //        Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up);
+    //        Vector3 dir = rot * cam.forward;
+
+    //        Vector3 spawnPos = attackOrigin.position + dir.normalized * attackRange;
+
+    //        Gizmos.matrix = Matrix4x4.TRS(spawnPos, Quaternion.LookRotation(dir), Vector3.one);
+    //        Gizmos.DrawWireCube(Vector3.zero, boxSize);
+    //    }
+    //}
 }

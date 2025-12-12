@@ -483,6 +483,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openClip: {fileID: 7400000, guid: dbbe83873b4a1444291d20aa30ceff5f, type: 2}
   lidCollider: {fileID: 3691678139938210813}
+  chestOpen: {fileID: 8300000, guid: 7ba916b0ceab2cd4290d77008e0b154c, type: 3}
+  chestOpenVolume: 0.67
 --- !u!1 &7670014134155264056
 GameObject:
   m_ObjectHideFlags: 0

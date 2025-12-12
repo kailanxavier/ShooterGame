@@ -40,7 +40,7 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void PlayWeaponSound(AudioClip clip, Vector3 position, float volume = 1f)
+    public void PlaySound(AudioClip clip, Vector3 position, float volume = 1f)
     {
         if (clip == null) return;
 
