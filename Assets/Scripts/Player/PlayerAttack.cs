@@ -85,8 +85,10 @@ public class PlayerAttack : MonoBehaviour
 
                 hitAlready.Add(hit);
 
-                Instantiate(bloodPrefab, spawnPos, Quaternion.identity);
-                hit.GetComponent<EnemyBase>()?.TakeDamage(damage);
+                GameObject instance = Instantiate(bloodPrefab, spawnPos, Quaternion.identity);
+                Destroy(instance, 1f);
+
+                hit.GetComponent<EnemyBase>()?.TakeDamage(damage); // i will use null propagation as much as i want unity
                 SoundManager.Instance.PlaySound(hitClip, hit.transform.position, hitVolume);
             }
 

@@ -71,7 +71,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!grounded) return;
 
-        playerRb.AddForce(Vector3.down * 40f, ForceMode.Acceleration);
+        playerRb.AddForce(Vector3.down * 120f, ForceMode.Acceleration);
     }
 
     private void BaseMove()
