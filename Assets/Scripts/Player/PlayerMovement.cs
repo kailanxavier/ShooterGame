@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpForce = 35.0f;
     [SerializeField] private float jumpCooldown = 0.2f;
     private bool readyToJump = true;
- 
+
     private bool jumpRequested;
     private Vector2 inputVector;
 
@@ -64,6 +64,14 @@ public class PlayerMovement : MonoBehaviour
         BaseMove();
         CounterMovement();
         ClampSpeed();
+        TendToGround();
+    }
+
+    private void TendToGround()
+    {
+        if (!grounded) return;
+
+        playerRb.AddForce(Vector3.down * 40f, ForceMode.Acceleration);
     }
 
     private void BaseMove()

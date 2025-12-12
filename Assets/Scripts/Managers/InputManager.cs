@@ -10,9 +10,10 @@ public class InputManager : MonoBehaviour
     private bool jumpPerformed;
     private bool attackPerformed;
 
-
     private bool interactPerformed;
     private bool interactedThisPress;
+
+    private bool crouchPerformed;
 
 
     private void Awake()
@@ -52,6 +53,9 @@ public class InputManager : MonoBehaviour
 
         inputSystem.Player.Interact.performed += ctx => interactPerformed = true;
         inputSystem.Player.Interact.canceled += ctx => interactPerformed = false;
+
+        inputSystem.Player.Crouch.performed += ctx => crouchPerformed = true;
+        inputSystem.Player.Crouch.canceled += ctx => crouchPerformed = false;
     }
 
     private void OnDisable()
@@ -78,6 +82,8 @@ public class InputManager : MonoBehaviour
     public Vector2 Look => lookInput;
     public bool Jump => jumpPerformed;
     public bool Attack => attackPerformed;
+    public bool Crouch => crouchPerformed;
+
     public bool Interact
     {
         get
@@ -90,4 +96,5 @@ public class InputManager : MonoBehaviour
             return false;
         }
     }
+
 }
