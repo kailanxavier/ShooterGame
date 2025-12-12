@@ -132,4 +132,6 @@ public class EnemyAI : MonoBehaviour
     }
 
     public void SetMoveSpeed(float value) => moveSpeed = value;
+
+    public float MoveSpeed => rb.linearVelocity.magnitude;
 }
