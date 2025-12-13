@@ -2602,10 +2602,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   enemyEyeHeight: {fileID: 3383717745817631566}
-  attackRange: 2.6
-  attackCooldown: 1.2
+  attackRange: 2.3
+  attackCooldown: 0.8
   attackDamage: 10
-  visionBuffer: 1.5
+  windUpTime: 0.4
+  attackSound: {fileID: 8300000, guid: 53024c319ccf48b489390a1526b971c6, type: 3}
+  visionBuffer: 3
 --- !u!114 &4454482310446822311
 MonoBehaviour:
   m_ObjectHideFlags: 0

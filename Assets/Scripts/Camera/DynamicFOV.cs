@@ -29,9 +29,7 @@ public class DynamicFOV : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         cam = Camera.main;
         player = FindFirstObjectByType<PlayerMovement>();

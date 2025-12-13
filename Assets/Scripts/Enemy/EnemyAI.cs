@@ -25,6 +25,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float attackRange = 1.2f;
     [SerializeField] private float attackCooldown = 1.2f;
     [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float windUpTime = 1.3f;
+    [SerializeField] private AudioClip attackSound;
 
     [Header("Memory: ")]
     [SerializeField] private float visionBuffer = 1.5f; // seconds
@@ -45,6 +47,8 @@ public class EnemyAI : MonoBehaviour
     private float repathDelay = 0.5f;
     private float repathTimer = 0f;
 
+    private EnemyAnimator animator;
+
     private void Start()
     {
         repathDelay = 0.4f;
@@ -58,6 +62,8 @@ public class EnemyAI : MonoBehaviour
 
         GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
         player = playerObj.GetComponent<Transform>();
+
+        animator = GetComponent<EnemyAnimator>();
     }
 
     private void Update()
@@ -159,53 +165,75 @@ public class EnemyAI : MonoBehaviour
 
     public void Attack()
     {
-        if (!CanAttackPlayer()) return;
+        if (isAttacking) return;
+        if (Time.time < nextAttackTime) return;
+
+        isAttacking = true;
 
         rb.linearVelocity = Vector3.zero;
         currentPath = null;
 
-        nextAttackTime = Time.time + attackCooldown;
         StartCoroutine(AttackCoroutine());
     }
 
+    // TODO: just make this better, idk whats wrong rn
     private IEnumerator AttackCoroutine()
     {
-        isAttacking = true;
+        float t = 0.0f;
+        while (t < windUpTime)
+        {
+            t += Time.deltaTime;
 
-        Vector3 dir = (player.position - transform.position).normalized;
-        dir.y = 0.0f;
-        rb.MoveRotation(Quaternion.LookRotation(dir));
+            Vector3 dir = player.position - transform.position;
+            dir.y = 0;
+            if (dir.sqrMagnitude > 0.001)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                rb.rotation = Quaternion.Slerp(rb.rotation, targetRot, Time.deltaTime * 8.0f);
+            }
 
-        yield return new WaitForSeconds(0.3f);
+            // check if player escaped
+            if (Vector3.Distance(transform.position, player.position) > attackRange * 1.2f)
+            {
+                isAttacking = false;
+                yield break;
+            }
 
-        // deal damage
-        if (player.TryGetComponent<PlayerHealth>(out var health))
-            health.TakeDamage(attackDamage);
+            yield return null;
+        }
 
-        // animations, sounds, etc will go here
+        if (Vector3.Distance(transform.position, player.position) <= attackRange)
+        {
+            // animate
+            animator.SetAttackBool(true);
 
-        
+            // fucked way to sync audio and animation/damage
+            yield return new WaitForSeconds(0.2f);
 
+            if (player.TryGetComponent<PlayerHealth>(out var health))
+            {
+                health.TakeDamage(attackDamage);
+                // play damage sound
+                SoundManager.Instance.PlaySoundWithRandomPitch(attackSound, player.position, 0.5f);
+            }
+        }
 
+        nextAttackTime = Time.time + attackCooldown;
 
+        // recover
+        yield return new WaitForSeconds(0.95f);
 
-
-
-        yield return new WaitForSeconds(0.1f);
+        animator.SetAttackBool(false);
         isAttacking = false;
     }
 
     public bool CanAttackPlayer()
     {
         if (player == null) return false;
+        if (isAttacking) return false;
 
         float dist = Vector3.Distance(transform.position, player.position);
-
-        if (dist <= attackRange)
-            return Time.time >= nextAttackTime;
-
-        if (!canSeePlayer) return false;
-
+        if (dist > attackRange) return false;
         return Time.time >= nextAttackTime;
     }
 

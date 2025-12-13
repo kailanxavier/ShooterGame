@@ -17,4 +17,9 @@ public class EnemyAnimator : MonoBehaviour
 
         enemyAnimator.SetFloat("MoveSpeed", enemyAI.MoveSpeed);
     }
+
+    public void SetAttackBool(bool value)
+    {
+        enemyAnimator.SetBool("IsAttacking", value);
+    }
 }

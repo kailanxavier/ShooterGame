@@ -47,6 +47,24 @@ public class SoundManager : MonoBehaviour
         AudioSource src = GetAvailableAudioSource();
         src.transform.position = position;
         src.volume = volume * masterVolume;
+        src.spatialBlend = 1f;
+        src.minDistance = 2f;
+        src.maxDistance = 25f;
+        src.outputAudioMixerGroup = mixerGroup;
+
+        src.clip = clip;
+        src.Play();
+
+        StartCoroutine(ReturnToPoolAfterPlay(src, clip.length / src.pitch));
+    }
+
+    public void PlaySoundWithRandomPitch(AudioClip clip, Vector3 position, float volume = 1f)
+    {
+        if (clip == null) return;
+
+        AudioSource src = GetAvailableAudioSource();
+        src.transform.position = position;
+        src.volume = volume * masterVolume;
         src.pitch = Random.Range(minPitchVariation, maxPitchVariation);
         src.spatialBlend = 1f;
         src.minDistance = 2f;
