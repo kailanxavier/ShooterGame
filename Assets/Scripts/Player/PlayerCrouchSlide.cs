@@ -48,8 +48,13 @@ public class PlayerCrouchSlide : MonoBehaviour
 
         if (isSliding)
         {
+            // stick to the ground
+            playerRb.AddForce(Vector3.down * 25.0f, ForceMode.Acceleration);
+
+            // apply decay
             playerRb.AddForce(-playerRb.linearVelocity.normalized * slideDecay, ForceMode.Acceleration);
 
+            // check if should stop
             if (playerRb.linearVelocity.magnitude < minSlideSpeed || !player.IsGrounded)
                 StopSlide();
         }

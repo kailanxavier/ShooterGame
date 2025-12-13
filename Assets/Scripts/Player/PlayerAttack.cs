@@ -18,6 +18,12 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private int boxCount = 5;
     [SerializeField] private Vector3 boxSize = new(0.4f, 0.4f, 0.4f);
 
+    [Header("Coin hit settings: ")]
+    [SerializeField] private float coinExplosionForce = 6f;
+    [SerializeField] private float coinExplosionRadius = 1.5f;
+    [SerializeField] private float coinUpwardMod = 0.5f;
+    [SerializeField] private LayerMask coinMask;
+
     [Header("Visuals: ")]
     [SerializeField] private GameObject bloodPrefab;
 
@@ -71,12 +77,12 @@ public class PlayerAttack : MonoBehaviour
 
             Vector3 spawnPos = attackOrigin.position + dir.normalized * attackRange;
 
-            Debug.DrawRay(attackOrigin.position, dir * attackRange, Color.red, 0.3f);
+            //Debug.DrawRay(attackOrigin.position, dir * attackRange, Color.red, 0.3f);
 
             Collider[] hits = Physics.OverlapBox(
                 spawnPos, boxSize * 0.5f,
                 Quaternion.LookRotation(dir),
-                attackableMask
+                attackableMask | coinMask
             );
 
             foreach (Collider hit in hits)
@@ -85,9 +91,19 @@ public class PlayerAttack : MonoBehaviour
 
                 hitAlready.Add(hit);
 
+                Rigidbody rb = hit.attachedRigidbody;
+                if (rb != null && ((1 << hit.gameObject.layer) & coinMask) != 0)
+                {
+                    rb.AddExplosionForce(
+                        coinExplosionForce, 
+                        spawnPos, coinExplosionRadius, 
+                        coinUpwardMod, ForceMode.Impulse);
+
+                    continue;
+                }
+
                 GameObject instance = Instantiate(bloodPrefab, spawnPos, Quaternion.identity);
                 Destroy(instance, 1f);
-
                 hit.GetComponent<EnemyBase>()?.TakeDamage(damage); // i will use null propagation as much as i want unity
                 SoundManager.Instance.PlaySound(hitClip, hit.transform.position, hitVolume);
             }

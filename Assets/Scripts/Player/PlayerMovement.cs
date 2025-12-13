@@ -18,7 +18,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float groundDrag = 6.0f;
     [SerializeField] private float groundCheckRadius = 0.35f;
     [SerializeField] private float groundCheckDistance = 0.4f;
-    private bool grounded;
     private Vector3 groundNormal = Vector3.up;
 
     [Header("Jump settings: ")]
@@ -28,6 +27,13 @@ public class PlayerMovement : MonoBehaviour
 
     private bool jumpRequested;
     private Vector2 inputVector;
+
+    private const float groundedRememberTime = 0.1f;
+    private float groundedTimer;
+    public bool IsGrounded
+    {
+        get { return groundedTimer > 0; }
+    }
 
     private void Awake()
     {
@@ -39,17 +45,22 @@ public class PlayerMovement : MonoBehaviour
         inputVector = InputManager.Instance.Move;
         jumpRequested = InputManager.Instance.Jump;
 
-        grounded = Physics.CheckSphere(groundCheckPoint.position, groundCheckRadius, groundMask);
+        bool rawGrounded = Physics.CheckSphere(groundCheckPoint.position, groundCheckRadius, groundMask);
+
+        if (rawGrounded)
+            groundedTimer = groundedRememberTime;
+        else
+            groundedTimer -= Time.deltaTime;
 
         if (Physics.Raycast(groundCheckPoint.position, Vector3.down, out RaycastHit hit, groundCheckDistance + 0.2f, groundMask))
             groundNormal = hit.normal;
         else
             groundNormal = Vector3.up;
 
-        if (jumpRequested && grounded && readyToJump)
+        if (jumpRequested && IsGrounded && readyToJump)
             Jump();
 
-        playerRb.linearDamping = grounded ? groundDrag : 0f;
+        playerRb.linearDamping = IsGrounded ? groundDrag : 0f;
     }
 
     private void LateUpdate()
@@ -69,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void TendToGround()
     {
-        if (!grounded) return;
+        if (!IsGrounded) return;
 
         playerRb.AddForce(Vector3.down * 120f, ForceMode.Acceleration);
     }
@@ -83,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveDir.sqrMagnitude > 1.0f) moveDir.Normalize();
 
-        float multiplier = grounded ? 1f : airControl;
+        float multiplier = IsGrounded ? 1f : airControl;
         playerRb.AddForce(acceleration * multiplier * moveDir, ForceMode.Acceleration);
     }
 
@@ -101,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CounterMovement()
     {
-        if (!grounded) return;
+        if (!IsGrounded) return;
 
         Vector3 flatVel = new(playerRb.linearVelocity.x, 0f, playerRb.linearVelocity.z);
 
@@ -164,5 +175,4 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public float Speed => playerRb.linearVelocity.magnitude;
-    public bool IsGrounded => grounded;
 }
