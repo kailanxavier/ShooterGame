@@ -99,6 +99,8 @@ public class PlayerAttack : MonoBehaviour
                         spawnPos, coinExplosionRadius, 
                         coinUpwardMod, ForceMode.Impulse);
 
+                    rb.AddTorque(Random.insideUnitSphere * 2.0f, ForceMode.Impulse);
+
                     continue;
                 }
 

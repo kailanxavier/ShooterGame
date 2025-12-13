@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -19,6 +21,11 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private Transform enemyEyeHeight;
 
+    [Header("Attack settings: ")]
+    [SerializeField] private float attackRange = 1.2f;
+    [SerializeField] private float attackCooldown = 1.2f;
+    [SerializeField] private int attackDamage = 10;
+
     [Header("Memory: ")]
     [SerializeField] private float visionBuffer = 1.5f; // seconds
 
@@ -26,6 +33,10 @@ public class EnemyAI : MonoBehaviour
     private bool canSeePlayer;
     private float performCheckTimer;
     private float lostSightTimer;
+
+    // attack player
+    private float nextAttackTime;
+    private bool isAttacking = false;
 
     // pathfinding stuff
     private Pathfinder pathfinder;
@@ -52,6 +63,7 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (player == null) return;
+        if (isAttacking) return;
 
         performCheckTimer -= Time.deltaTime;
         if (performCheckTimer <= 0)
@@ -66,24 +78,36 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
+        // memory timer
         if (lostSightTimer > 0f)
             lostSightTimer -= Time.deltaTime;
         else
             canSeePlayer = false;
 
-        if (player == null) return;
-
+        // calculate distance from player
         float dist = Vector3.Distance(transform.position, player.position);
         repathTimer -= Time.deltaTime;
 
+        // chase
         if (dist <= chaseRange && canSeePlayer)
         {
-            if (Time.time >= repathTimer)
+            repathTimer -= Time.deltaTime;
+            if (repathTimer <= 0f)
             {
-                repathTimer = Time.time + repathDelay;
-                QueueManager.RequestPath(transform.position, player.position, OnPathFound);
+                repathTimer = repathDelay;
+                Vector3 pathToPlayer = player.position - transform.position;
+                pathToPlayer.y = 0.0f;
+                Vector3 target = player.position - pathToPlayer.normalized * (attackRange * 0.9f);
+                QueueManager.RequestPath(transform.position, target, OnPathFound);
             }
             FollowPath();
+        }
+
+        // attack
+        if (dist <= attackRange && CanAttackPlayer())
+        {
+            Attack();
+            return;
         }
     }
 
@@ -95,10 +119,12 @@ public class EnemyAI : MonoBehaviour
 
     private void FollowPath()
     {
+        if (Vector3.Distance(transform.position, player.position) <= attackRange) return;
+        if (isAttacking) return;
+
         if (currentPath == null || currentWaypoint >= currentPath.Count) return;
 
         Vector3 target = currentPath[currentWaypoint];
-
         Vector3 moveTarget = new Vector3(target.x, transform.position.y, target.z); // flatten pos to remain grounded
         Vector3 dir = (moveTarget - transform.position).normalized;
 
@@ -107,7 +133,7 @@ public class EnemyAI : MonoBehaviour
         rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 10f * Time.deltaTime));
         rb.MovePosition(rb.position + moveSpeed * Time.deltaTime * dir);
 
-        float near = 0.3f;
+        float near = 0.5f;
         if (Vector3.Distance(transform.position, moveTarget) < near)
         {
             currentWaypoint++;
@@ -130,6 +156,59 @@ public class EnemyAI : MonoBehaviour
 
         return false;
     }
+
+    public void Attack()
+    {
+        if (!CanAttackPlayer()) return;
+
+        rb.linearVelocity = Vector3.zero;
+        currentPath = null;
+
+        nextAttackTime = Time.time + attackCooldown;
+        StartCoroutine(AttackCoroutine());
+    }
+
+    private IEnumerator AttackCoroutine()
+    {
+        isAttacking = true;
+
+        Vector3 dir = (player.position - transform.position).normalized;
+        dir.y = 0.0f;
+        rb.MoveRotation(Quaternion.LookRotation(dir));
+
+        yield return new WaitForSeconds(0.3f);
+
+        // deal damage
+        if (player.TryGetComponent<PlayerHealth>(out var health))
+            health.TakeDamage(attackDamage);
+
+        // animations, sounds, etc will go here
+
+        
+
+
+
+
+
+
+        yield return new WaitForSeconds(0.1f);
+        isAttacking = false;
+    }
+
+    public bool CanAttackPlayer()
+    {
+        if (player == null) return false;
+
+        float dist = Vector3.Distance(transform.position, player.position);
+
+        if (dist <= attackRange)
+            return Time.time >= nextAttackTime;
+
+        if (!canSeePlayer) return false;
+
+        return Time.time >= nextAttackTime;
+    }
+
 
     public void SetMoveSpeed(float value) => moveSpeed = value;
 

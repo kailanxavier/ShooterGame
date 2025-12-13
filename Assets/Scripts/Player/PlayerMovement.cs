@@ -20,6 +20,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.4f;
     private Vector3 groundNormal = Vector3.up;
 
+    [Header("Crouch settings: ")]
+    [SerializeField] private float crouchSpeedMultiplier = 0.4f;
+    [SerializeField] private float crouchAccelMultiplier = 0.5f;
+
     [Header("Jump settings: ")]
     [SerializeField] private float jumpForce = 35.0f;
     [SerializeField] private float jumpCooldown = 0.2f;
@@ -27,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool jumpRequested;
     private Vector2 inputVector;
+    private PlayerCrouchSlide crouch;
 
     private const float groundedRememberTime = 0.1f;
     private float groundedTimer;
@@ -38,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody>();
+        crouch = GetComponent<PlayerCrouchSlide>();
     }
 
     private void Update()
@@ -91,10 +97,13 @@ public class PlayerMovement : MonoBehaviour
         Vector3 x = Vector3.ProjectOnPlane(orientation.right, groundNormal).normalized;
 
         Vector3 moveDir = y * inputVector.y + x * inputVector.x;
-
         if (moveDir.sqrMagnitude > 1.0f) moveDir.Normalize();
 
         float multiplier = IsGrounded ? 1f : airControl;
+
+        if (crouch != null && crouch.IsCrouching && !crouch.IsSliding)
+            multiplier *= crouchAccelMultiplier;
+
         playerRb.AddForce(acceleration * multiplier * moveDir, ForceMode.Acceleration);
     }
 
@@ -161,9 +170,14 @@ public class PlayerMovement : MonoBehaviour
         Vector3 flatVel = new(playerRb.linearVelocity.x, 0f, playerRb.linearVelocity.z);
         float flatSpeed = flatVel.magnitude;
 
+        float currentMaxSpeed = maxSpeed;
+
+        if (crouch != null && crouch.IsCrouching && !crouch.IsSliding)
+            currentMaxSpeed *= crouchSpeedMultiplier;
+
         if (flatSpeed > maxSpeed)
         {
-            Vector3 limited = flatVel.normalized * maxSpeed;
+            Vector3 limited = flatVel.normalized * currentMaxSpeed;
             Vector3 newVel = limited + Vector3.Project(playerRb.linearVelocity, groundNormal);
             playerRb.linearVelocity = newVel;
         }

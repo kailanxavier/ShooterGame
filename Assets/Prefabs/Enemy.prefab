@@ -2602,6 +2602,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   enemyEyeHeight: {fileID: 3383717745817631566}
+  attackRange: 2.6
+  attackCooldown: 1.2
+  attackDamage: 10
   visionBuffer: 1.5
 --- !u!114 &4454482310446822311
 MonoBehaviour:

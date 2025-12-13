@@ -19,7 +19,6 @@ public class DynamicFOV : MonoBehaviour
     [SerializeField] private float smoothTime = 0.15f;
 
     private float externalFOVAdd = 0f;
-    private float externalVelocity = 0f;
 
     private PlayerMovement player;
 
