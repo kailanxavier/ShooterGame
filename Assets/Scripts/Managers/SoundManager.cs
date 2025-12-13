@@ -18,6 +18,7 @@ public class SoundManager : MonoBehaviour
 
     private Queue<AudioSource> audioPool = new Queue<AudioSource>();
     [SerializeField] private AudioMixerGroup mixerGroup;
+    [SerializeField] private AudioMixer masterMixer;
 
     private void Awake()
     {
@@ -75,6 +76,27 @@ public class SoundManager : MonoBehaviour
         src.Play();
 
         StartCoroutine(ReturnToPoolAfterPlay(src, clip.length / src.pitch));
+    }
+
+    public void UpdateMasterVolume(float value)
+    {
+        masterMixer.SetFloat("MasterVolume", LinearToDecibel(value));
+    }
+
+    public void UpdateMusicVolume(float value)
+    {
+        masterMixer.SetFloat("MusicVolume", LinearToDecibel(value));
+    }
+
+    public void UpdateSoundFXVolume(float value)
+    {
+        masterMixer.SetFloat("SFXVolume", LinearToDecibel(value));
+    }
+
+    private float LinearToDecibel(float linear)
+    {
+        Debug.Log("Converted");
+        return Mathf.Log10(Mathf.Clamp(linear, 0.0001f, 1f)) * 20f;
     }
 
     private AudioSource GetAvailableAudioSource()

@@ -13,6 +13,9 @@ public class InputManager : MonoBehaviour
     private bool interactPerformed;
     private bool interactedThisPress;
 
+    private bool pausePerformed;
+    private bool pausedThisPress;
+
     private bool crouchPerformed;
 
 
@@ -33,6 +36,9 @@ public class InputManager : MonoBehaviour
     {
         if (!interactPerformed)
             interactedThisPress = false;
+
+        if (!pausePerformed) 
+            pausedThisPress = false;
     }
 
     private void OnEnable()
@@ -56,6 +62,12 @@ public class InputManager : MonoBehaviour
 
         inputSystem.Player.Crouch.performed += ctx => crouchPerformed = true;
         inputSystem.Player.Crouch.canceled += ctx => crouchPerformed = false;
+
+        inputSystem.Player.PauseMenu.performed += ctx => pausePerformed = true;
+        inputSystem.Player.PauseMenu.canceled += ctx => pausePerformed = false;
+
+        inputSystem.UI.Cancel.performed += ctx => pausePerformed = true;
+        inputSystem.UI.Cancel.canceled += ctx => pausePerformed = false;
     }
 
     private void OnDisable()
@@ -76,6 +88,27 @@ public class InputManager : MonoBehaviour
 
         inputSystem.Player.Interact.performed -= ctx => interactPerformed = true;
         inputSystem.Player.Interact.canceled -= ctx => interactPerformed = false;
+
+        inputSystem.Player.Crouch.performed -= ctx => crouchPerformed = true;
+        inputSystem.Player.Crouch.canceled -= ctx => crouchPerformed = false;
+
+        inputSystem.Player.PauseMenu.performed -= ctx => pausePerformed = true;
+        inputSystem.Player.PauseMenu.canceled -= ctx => pausePerformed = false;
+
+        inputSystem.UI.Cancel.performed -= ctx => pausePerformed = true;
+        inputSystem.UI.Cancel.canceled -= ctx => pausePerformed = false;
+    }
+
+    public void EnableInput()
+    {
+        inputSystem.Player.Enable();
+        inputSystem.UI.Disable();
+    }
+
+    public void DisableInput()
+    {
+        inputSystem.Player.Disable();
+        inputSystem.UI.Enable();
     }
 
     public Vector2 Move => moveInput;
@@ -83,6 +116,19 @@ public class InputManager : MonoBehaviour
     public bool Jump => jumpPerformed;
     public bool Attack => attackPerformed;
     public bool Crouch => crouchPerformed;
+
+    public bool PauseMenu
+    {
+        get
+        {
+            if (pausePerformed && !pausedThisPress)
+            {
+                pausedThisPress = true;
+                return true;
+            }
+            return false;
+        }
+    }
 
     public bool Interact
     {

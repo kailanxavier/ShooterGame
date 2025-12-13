@@ -6,12 +6,15 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private bool canInteract = true;
     [SerializeField] private float interactDistance = 3f;
     [SerializeField] private LayerMask interactableMask;
+    [SerializeField] private LayerMask obstacleMask;
+
+    [SerializeField] private GameObject paywallCanvas;
 
     private void Update()
     {
         Camera cam = Camera.main;
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        canInteract = Physics.Raycast(ray, out RaycastHit hitInfo, interactDistance, interactableMask);
+        canInteract = Physics.Raycast(ray, out RaycastHit hitInfo, interactDistance, interactableMask | obstacleMask);
 
         if (canInteract)
         {
@@ -30,6 +33,11 @@ public class PlayerInteract : MonoBehaviour
         if (interactable)
             interactable.BaseInteract();
         else
-            Debug.Log("NULL");
+        {
+            paywallCanvas.SetActive(true);
+            InputManager.Instance.DisableInput();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 }

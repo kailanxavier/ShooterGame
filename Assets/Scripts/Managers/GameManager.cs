@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,6 +23,20 @@ public class GameManager : MonoBehaviour
     {
         currentPlayerHealth = val;
         UIManager.Instance.UpdateHealthUI(currentPlayerHealth);
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0.0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1.0f;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public void EndGame()
