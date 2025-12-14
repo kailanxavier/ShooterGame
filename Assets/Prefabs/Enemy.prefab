@@ -2599,7 +2599,7 @@ MonoBehaviour:
   player: {fileID: 0}
   playerTag: Player
   moveSpeed: 5
-  chaseRange: 20
+  chaseRange: 130
   sightCheckFrequency: 0.2
   obstacleMask:
     serializedVersion: 2

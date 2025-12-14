@@ -8,6 +8,9 @@ public class PathNode
     public int gCost, hCost;
     public PathNode parent;
 
+    public int regionId = -1;
+    public bool visited = false;
+
     public int fCost => gCost + hCost;
 
     public PathNode(bool walkable, Vector3 worldPos, int x, int y)

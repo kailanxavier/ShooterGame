@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Default
   maxHealth: 100
-  moveSpeed: 3
+  moveSpeed: 7
   weapon: {fileID: 0}
   enemyPrefab: {fileID: 9153174914978565807, guid: 782997679f39151478e1f8b0fe75ba55, type: 3}

@@ -92,7 +92,6 @@ public class EnemyAI : MonoBehaviour
 
         // calculate distance from player
         float dist = Vector3.Distance(transform.position, player.position);
-        repathTimer -= Time.deltaTime;
 
         // chase
         if (dist <= chaseRange && canSeePlayer)
@@ -128,10 +127,14 @@ public class EnemyAI : MonoBehaviour
         if (Vector3.Distance(transform.position, player.position) <= attackRange) return;
         if (isAttacking) return;
 
-        if (currentPath == null || currentWaypoint >= currentPath.Count) return;
+        if (currentPath == null || currentWaypoint >= currentPath.Count)
+        {
+            repathTimer = 0.0f; // force repath
+            return;
+        }
 
         Vector3 target = currentPath[currentWaypoint];
-        Vector3 moveTarget = new Vector3(target.x, transform.position.y, target.z); // flatten pos to remain grounded
+        Vector3 moveTarget = new(target.x, transform.position.y, target.z); // flatten pos to remain grounded
         Vector3 dir = (moveTarget - transform.position).normalized;
 
         // move and rotate enemy towards player

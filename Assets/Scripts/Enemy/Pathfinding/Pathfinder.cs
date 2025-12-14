@@ -106,6 +106,20 @@ public class Pathfinder : MonoBehaviour
         return path;
     }
 
+    public bool CanReach(Vector3 from, Vector3 to)
+    {
+        PathNode start = grid.NodeFromWorldPoint(from);
+        PathNode end   = grid.NodeFromWorldPoint(to);
+
+        if (start == null || end == null) return false;
+        if (!start.walkable) return false;
+
+        PathNode target = grid.GetNearestWalkableNode(end, 2);
+        if (target == null) return false;
+
+        return start.regionId == target.regionId;
+    }
+
 
     private List<Vector3> RetracePath(PathNode start, PathNode end)
     {

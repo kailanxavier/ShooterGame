@@ -15,11 +15,14 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] private float minCoins = 5.0f;
     [SerializeField] private float maxCoins = 20.0f;
 
+    private EnemyDirector enemyDirector;
+
     private int coinCount;
 
     private void Awake()
     {
         health = data.maxHealth;
+        enemyDirector = FindFirstObjectByType<EnemyDirector>();
     }
 
     public void TakeDamage(int damage)
@@ -35,7 +38,9 @@ public class EnemyBase : MonoBehaviour
         SoundManager.Instance.PlaySound(death, transform.position, deathVolume);
 
         ExplodeCoins();
+        GameManager.Instance.IncrementKill();
         GameManager.Instance.AddPlayerGold(coinCount);
+        enemyDirector.OnEnemyKilled();
 
         Destroy(gameObject);
     }

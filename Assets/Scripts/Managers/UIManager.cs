@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
     [Header("Reference settings: ")]
     [SerializeField] private TextMeshProUGUI health;
     [SerializeField] private TextMeshProUGUI gold;
+    [SerializeField] private TextMeshProUGUI timer;
+    [SerializeField] private TextMeshProUGUI kills;
 
     private void Awake()
     {
@@ -20,9 +22,19 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
+    private void Update()
+    {
+        timer.text = GameManager.Instance.GetFormattedTime();
+    }
+
     public void UpdateHealthUI(int currentHealth)
     {
         health.text = $"HEALTH: {currentHealth}";
+    }
+
+    public void UpdateKillsUI(int currentKills)
+    {
+        kills.text = $"KILLS: {currentKills}";
     }
 
     public void UpdateGoldUI(int currentGold)

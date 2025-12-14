@@ -29,7 +29,7 @@ public class GridManager : MonoBehaviour
 
         // create grid
         CreateGrid();
-
+        GenerateRegions();
         CacheGridData();
     }
 
@@ -90,8 +90,6 @@ public class GridManager : MonoBehaviour
 
     public PathNode GetNearestWalkableNode(PathNode center, int r)
     {
-        if (!center.walkable) return null;
-
         PathNode best = null;
         float bestDist = float.MaxValue;
 
@@ -107,7 +105,7 @@ public class GridManager : MonoBehaviour
                 PathNode n = grid[checkX, checkY];
 
                 if (!n.walkable) continue;
-                if (IsSurrounded(n)) return null;
+                if (IsSurrounded(n)) continue;
 
                 float d = (n.worldPos - center.worldPos).sqrMagnitude;
                 if (d < bestDist)
@@ -128,10 +126,11 @@ public class GridManager : MonoBehaviour
 
         int[,] directionMatrix = new int[,]
         {
-            { -1, 1 }, { 0, -1 }, { 1, 1 },
-            { -1, 0 },            { 1, 0 },
-            { -1, 1 }, { 0, 1 },  { 1, 1 }
+            { -1, -1 }, { 0, -1 }, { 1, -1 },
+            { -1,  0 },            { 1,  0 },
+            { -1,  1 }, { 0,  1 }, { 1,  1 }
         };
+
 
         for (int i = 0; i < directionMatrix.GetLength(0); i++)
         {
@@ -190,6 +189,44 @@ public class GridManager : MonoBehaviour
         {
             gizmoPositions.Add(node.worldPos);
             gizmoWalkable.Add(node.walkable);
+        }
+    }
+
+    public void GenerateRegions()
+    {
+        int currentRegion = 0; 
+
+        foreach (var node in grid)
+        {
+            if (!node.walkable || node.visited) continue;
+
+            FloodFill(node, currentRegion);
+            currentRegion++;
+        }
+
+        Debug.Log($"Generated {currentRegion} walkable regions");
+    }
+
+    private void FloodFill(PathNode start, int regionId)
+    {
+        Queue<PathNode> queue = new Queue<PathNode>();
+        queue.Enqueue(start);
+
+        start.visited = true;
+        start.regionId = regionId;
+
+        while (queue.Count > 0)
+        {
+            PathNode current = queue.Dequeue();
+
+            foreach (PathNode closeBy in GetPathNodesCloseBy(current))
+            {
+                if (!closeBy.walkable || closeBy.visited) continue;
+
+                closeBy.visited = true;
+                closeBy.regionId = regionId;
+                queue.Enqueue(closeBy);
+            }
         }
     }
 
