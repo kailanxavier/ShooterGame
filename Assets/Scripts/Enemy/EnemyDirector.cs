@@ -43,10 +43,8 @@ public class EnemyDirector : MonoBehaviour
     private IEnumerator SpawnHorde()
     {
         spawning = true;
-        //Debug.Log($"[ENEMY DIRECTOR] SpawnHorde START | alive {aliveCount}");
 
         int toSpawn = Mathf.Min(hordeSize, maxAlive -  aliveCount);
-        Debug.Log(toSpawn);
 
         for (int i = 0; i < toSpawn; i++)
         {
@@ -57,9 +55,7 @@ public class EnemyDirector : MonoBehaviour
 
             yield return new WaitForSeconds(spawnInterval);
         }
-
         spawning = false;
-        //Debug.Log($"[ENEMY DIRECTOR] SpawnHorde END | alive {aliveCount}");
     }
 
     private bool TrySpawnEnemy()

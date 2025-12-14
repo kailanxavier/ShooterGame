@@ -217,7 +217,7 @@ public class EnemyAI : MonoBehaviour
             {
                 health.TakeDamage(attackDamage);
                 // play damage sound
-                SoundManager.Instance.PlaySoundWithRandomPitch(attackSound, player.position, 0.5f);
+                SoundManager.Instance.PlaySound(attackSound, player.position, 0.5f, true);
             }
         }
 

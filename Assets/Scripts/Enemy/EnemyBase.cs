@@ -35,7 +35,7 @@ public class EnemyBase : MonoBehaviour
 
     private void Die()
     {
-        SoundManager.Instance.PlaySound(death, transform.position, deathVolume);
+        SoundManager.Instance.PlaySound(death, transform.position, deathVolume, true);
 
         ExplodeCoins();
         GameManager.Instance.IncrementKill();
