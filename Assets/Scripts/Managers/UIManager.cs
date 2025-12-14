@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 
@@ -24,7 +25,8 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        timer.text = GameManager.Instance.GetFormattedTime();
+        if (GameManager.Instance.IsPlaying)
+            timer.text = GameManager.Instance.GetFormattedTime();
     }
 
     public void UpdateHealthUI(int currentHealth)

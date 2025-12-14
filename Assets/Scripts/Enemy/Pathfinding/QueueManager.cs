@@ -13,7 +13,6 @@ public class QueueManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        pathfinder = FindFirstObjectByType<Pathfinder>();
     }
 
     public static void RequestPath(Vector3 start, Vector3 end, Action<List<Vector3>> ctx)
@@ -27,6 +26,7 @@ public class QueueManager : MonoBehaviour
     {
         if (!active && pathRequestQueue.Count > 0)
         {
+            pathfinder = FindFirstObjectByType<Pathfinder>();
             PathRequest request = pathRequestQueue.Dequeue();
             active = true;
 

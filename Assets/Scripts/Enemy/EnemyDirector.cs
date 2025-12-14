@@ -15,15 +15,17 @@ public class EnemyDirector : MonoBehaviour
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private float spawnRadius = 25.0f;
     [SerializeField] private Transform player;
+    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private LayerMask obstacleMask;
 
     private int aliveCount = 0;
     private float timer = 0.0f;
-    private Pathfinder pathfinder;
+    private GridManager gridManager;
     private bool spawning = false;
 
     private void Awake()
     {
-        pathfinder = FindFirstObjectByType<Pathfinder>();
+        gridManager = FindFirstObjectByType<GridManager>();
         timer = timeBetweenWaves - 1.0f;
     }
 
@@ -41,7 +43,10 @@ public class EnemyDirector : MonoBehaviour
     private IEnumerator SpawnHorde()
     {
         spawning = true;
+        //Debug.Log($"[ENEMY DIRECTOR] SpawnHorde START | alive {aliveCount}");
+
         int toSpawn = Mathf.Min(hordeSize, maxAlive -  aliveCount);
+        Debug.Log(toSpawn);
 
         for (int i = 0; i < toSpawn; i++)
         {
@@ -52,7 +57,9 @@ public class EnemyDirector : MonoBehaviour
 
             yield return new WaitForSeconds(spawnInterval);
         }
+
         spawning = false;
+        //Debug.Log($"[ENEMY DIRECTOR] SpawnHorde END | alive {aliveCount}");
     }
 
     private bool TrySpawnEnemy()
@@ -71,7 +78,7 @@ public class EnemyDirector : MonoBehaviour
 
     private bool TryGetSpawnPos(out Vector3 spawnPos)
     {
-        if (!player || !pathfinder)
+        if (!player || !gridManager)
         {
             spawnPos = Vector3.zero;
             return false;
@@ -81,11 +88,33 @@ public class EnemyDirector : MonoBehaviour
         {
             Vector3 candidate = player.position + Random.insideUnitSphere * spawnRadius;
 
-            candidate.y = player.position.y;
+            candidate.y = 50f;
 
-            if (!pathfinder.CanReach(candidate, player.position)) continue;
+            // raycast to spawn at correct height
+            if (Physics.Raycast(candidate, Vector3.down, out RaycastHit hitInfo, 100.0f, groundMask))
+            {
+                // check if walkable
+                if (!Physics.CheckSphere(hitInfo.point, 0.5f, obstacleMask))
+                {
+                    spawnPos = hitInfo.point;
+                    return true;
+                }
+            }
 
-            spawnPos = candidate;
+            if (!gridManager.IsInsideGrid(candidate))
+            {
+                continue;
+            }
+
+            PathNode node = gridManager.NodeFromWorldPoint(candidate);
+            if (!node.walkable) continue;
+
+            if (!gridManager.CanReach(node.worldPos, player.position))
+            {
+                continue;
+            }
+
+            spawnPos = node.worldPos;
             return true;
         }
 

@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour
     private float timer;
     private bool isPlaying = true;
 
+    public bool IsPlaying => isPlaying;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)

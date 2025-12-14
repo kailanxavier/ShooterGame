@@ -88,6 +88,20 @@ public class GridManager : MonoBehaviour
         return nodes;
     }
 
+    public bool CanReach(Vector3 from, Vector3 to)
+    {
+        PathNode start = NodeFromWorldPoint(from);
+        PathNode end =   NodeFromWorldPoint(to);
+
+        if (start == null || end == null) return false;
+        if (!start.walkable) return false;
+
+        PathNode target = GetNearestWalkableNode(end, 2);
+        if (target == null) return false;
+
+        return start.regionId == target.regionId;
+    }
+
     public PathNode GetNearestWalkableNode(PathNode center, int r)
     {
         PathNode best = null;
@@ -194,7 +208,7 @@ public class GridManager : MonoBehaviour
 
     public void GenerateRegions()
     {
-        int currentRegion = 0; 
+        int currentRegion = 0;
 
         foreach (var node in grid)
         {
@@ -203,8 +217,14 @@ public class GridManager : MonoBehaviour
             FloodFill(node, currentRegion);
             currentRegion++;
         }
+    }
 
-        Debug.Log($"Generated {currentRegion} walkable regions");
+    public bool IsInsideGrid(Vector3 worldPos)
+    {
+        Vector3 local = worldPos - transform.position;
+
+        // return flat plane bound
+        return Mathf.Abs(local.x) <= gridWorldSize.x * 0.5f && Mathf.Abs(local.z) <= gridWorldSize.z * 0.5f;
     }
 
     private void FloodFill(PathNode start, int regionId)
