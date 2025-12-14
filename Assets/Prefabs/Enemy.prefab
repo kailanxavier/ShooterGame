@@ -2566,6 +2566,12 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: 95372ed6d84c1d14796a9b1826f8fcc7, type: 2}
   death: {fileID: 8300000, guid: db6f46a14a18f4e4bbdef9f3e3c80ec7, type: 3}
   deathVolume: 0.45
+  coinPrefab: {fileID: 6718670069288447442, guid: 3ce78cc5fd6222e49a2e26dfece1ae60, type: 3}
+  explosionForce: 15
+  explosionRadius: 5
+  upwardModifier: 1
+  minCoins: 5
+  maxCoins: 20
 --- !u!114 &1055265001733574802
 MonoBehaviour:
   m_ObjectHideFlags: 0

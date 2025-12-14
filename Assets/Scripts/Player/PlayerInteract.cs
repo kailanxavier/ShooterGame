@@ -31,7 +31,13 @@ public class PlayerInteract : MonoBehaviour
         canInteract = false;
         InteractBase interactable = hitInfo.collider.gameObject.GetComponent<InteractBase>();
         if (interactable)
+        {
             interactable.BaseInteract();
+        }
+        else if (!interactable)
+        {
+            hitInfo.collider.gameObject.GetComponentInParent<InteractBase>().BaseInteract();
+        }
         else
         {
             paywallCanvas.SetActive(true);

@@ -467,8 +467,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.3, y: 3.1, z: 2.5}
-  m_Center: {x: 0, y: 1.5, z: 0}
+  m_Size: {x: 3.8815532, y: 1.5963292, z: 2.5000002}
+  m_Center: {x: -0.03824472, y: 0.74816465, z: 1.2031918e-16}
 --- !u!114 &5975225725638504703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -484,7 +484,15 @@ MonoBehaviour:
   openClip: {fileID: 7400000, guid: dbbe83873b4a1444291d20aa30ceff5f, type: 2}
   lidCollider: {fileID: 3691678139938210813}
   chestOpen: {fileID: 8300000, guid: 7ba916b0ceab2cd4290d77008e0b154c, type: 3}
+  goldCollect: {fileID: 8300000, guid: 7c458322f8edfd644994d1658253e280, type: 3}
   chestOpenVolume: 0.67
+  goldCollectVolume: 1
+  minGoldReward: 1
+  maxGoldReward: 20
+  coinPrefab: {fileID: 6718670069288447442, guid: 3ce78cc5fd6222e49a2e26dfece1ae60, type: 3}
+  explosionForce: 5
+  explosionRadius: 1
+  upwardModifier: 1
 --- !u!1 &7670014134155264056
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,7 +543,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 4.5, y: 1.5, z: 2.8}
   m_Center: {x: 0, y: 0.77, z: 1}

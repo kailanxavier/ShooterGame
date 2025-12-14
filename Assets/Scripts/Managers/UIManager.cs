@@ -27,6 +27,6 @@ public class UIManager : MonoBehaviour
 
     public void UpdateGoldUI(int currentGold)
     {
-        health.text = $"GOLD: {currentGold}";
+        gold.text = $"GOLD: {currentGold}";
     }
 }

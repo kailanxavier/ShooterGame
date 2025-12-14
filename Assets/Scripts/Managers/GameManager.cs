@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     private int currentPlayerHealth;
+    private int currentPlayerGold = 0;
 
     private void Awake()
     {
@@ -23,6 +24,12 @@ public class GameManager : MonoBehaviour
     {
         currentPlayerHealth = val;
         UIManager.Instance.UpdateHealthUI(currentPlayerHealth);
+    }
+
+    public void AddPlayerGold(int val)
+    {
+        currentPlayerGold += val;
+        UIManager.Instance.UpdateGoldUI(currentPlayerGold);
     }
 
     public void PauseGame()

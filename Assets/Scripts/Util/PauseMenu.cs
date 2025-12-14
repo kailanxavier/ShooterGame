@@ -8,11 +8,15 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
 
+    [SerializeField] private GameObject soundtrack;
+    [SerializeField] private bool soundtrackOn = true;
+
     private void Start()
     {
         UpdateMasterVolume();
         UpdateMusicVolume();
         UpdateSoundFXVolume();
+        soundtrack.SetActive(soundtrackOn);
 
         // hide menu after updates
         gameObject.SetActive(false);
@@ -25,6 +29,16 @@ public class PauseMenu : MonoBehaviour
 #else
     Application.Quit();
 #endif
+    }
+
+    public void ToggleSoundtrack()
+    {
+        soundtrackOn = !soundtrackOn;
+
+        if (soundtrackOn)
+            soundtrack.SetActive(true);
+        else
+            soundtrack.SetActive(false);
     }
 
     public void UpdateMasterVolume()

@@ -95,7 +95,6 @@ public class SoundManager : MonoBehaviour
 
     private float LinearToDecibel(float linear)
     {
-        Debug.Log("Converted");
         return Mathf.Log10(Mathf.Clamp(linear, 0.0001f, 1f)) * 20f;
     }
 
