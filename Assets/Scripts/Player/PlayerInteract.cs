@@ -8,6 +8,8 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private LayerMask interactableMask;
     [SerializeField] private LayerMask obstacleMask;
 
+    [SerializeField] private GameObject interactUI;
+
     [SerializeField] private GameObject paywallCanvas;
 
     private void Update()
@@ -15,6 +17,7 @@ public class PlayerInteract : MonoBehaviour
         Camera cam = Camera.main;
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         canInteract = Physics.Raycast(ray, out RaycastHit hitInfo, interactDistance, interactableMask | obstacleMask);
+        interactUI.SetActive(canInteract);
 
         if (canInteract)
         {
@@ -30,18 +33,22 @@ public class PlayerInteract : MonoBehaviour
     {
         canInteract = false;
         InteractBase interactable = hitInfo.collider.gameObject.GetComponent<InteractBase>();
-        if (interactable)
+        if (interactable == null)
+        {
+            interactable = hitInfo.collider.gameObject.GetComponentInParent<InteractBase>();
+        }
+
+        if (interactable != null)
         {
             interactable.BaseInteract();
         }
-        else if (!interactable)
-        {
-            hitInfo.collider.gameObject.GetComponentInParent<InteractBase>().BaseInteract();
-        }
+
         else
         {
             paywallCanvas.SetActive(true);
+
             InputManager.Instance.DisableInput();
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
