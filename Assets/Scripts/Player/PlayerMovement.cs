@@ -1,6 +1,4 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [RequireComponent (typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour

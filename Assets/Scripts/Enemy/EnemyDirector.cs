@@ -22,6 +22,7 @@ public class EnemyDirector : MonoBehaviour
     private float timer = 0.0f;
     private GridManager gridManager;
     private bool spawning = false;
+    private bool shouldSpawn = true;
 
     private void Awake()
     {
@@ -31,6 +32,8 @@ public class EnemyDirector : MonoBehaviour
 
     private void Update()
     {
+        if (!shouldSpawn) return;
+
         timer += Time.deltaTime;
 
         if (!spawning && timer >= timeBetweenWaves && aliveCount < maxAlive)
@@ -116,6 +119,12 @@ public class EnemyDirector : MonoBehaviour
 
         spawnPos = Vector3.zero;
         return false;
+    }
+
+    public void ToggleShouldSpawn()
+    {
+        shouldSpawn = !shouldSpawn;
+        timer = timeBetweenWaves - 1.0f;
     }
 
     private void OnDrawGizmosSelected()
