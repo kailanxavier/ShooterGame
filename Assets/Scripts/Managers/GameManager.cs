@@ -83,7 +83,6 @@ public class GameManager : MonoBehaviour
 
     private enum Scenes
     {
-        MainMenu,
         MainGame,
         GameOver
     }
